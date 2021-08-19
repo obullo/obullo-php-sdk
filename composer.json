@@ -1,0 +1,31 @@
+{
+    "name": "obullo/sdk",
+    "type": "library",
+    "description": "Php SDK for Obullo API",
+    "keywords": ["obullo", "video", "webrtc", "api"],
+    "homepage": "http://github.com/obullo/obullo-php-sdk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Obullo Devs",
+            "email": "api@obullo.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "guzzlehttp/guzzle": "^7.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=4.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Obullo\\": "src/Obullo/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Obullo\\Tests\\": "tests/Obullo/"
+        }
+    }
+}

@@ -2,6 +2,8 @@
 
 namespace Obullo\Jwt;
 
+use Obullo\Http\Request;
+use Obullo\Http\RemoteAddress;
 use Obullo\Jwt\Grants\GrantInterface;
 
 /**
@@ -12,14 +14,22 @@ use Obullo\Jwt\Grants\GrantInterface;
  */
 class TokenRequest
 {
+    const ACCOUNT_ID = 'accountId';
+    const API_KEY = 'apiKey';
+    const API_KEY_SECRET = 'apiKeySecret';
+    const USER_NAME = 'username';
+    const USER_IP = 'userIp';
+    const USER_AGENT = 'userAgent';
+    const GRANTS = 'grants';
+
     protected $accountId;
     protected $apiKey;
     protected $apiKeySecret;
     protected $identity;
     protected $sslVerify = true;
-    protected $body = array();
-    protected $userIp;
+    protected $remoteAddress;
     protected $userAgent;
+    protected $grants = array();
 
     public function __construct(
         string $accountId,
@@ -34,7 +44,7 @@ class TokenRequest
         $this->setIdentity($identity);
     }
 
-    public function sslVerify(bool $verify)
+    public function sslVerifyFile(string $verify)
     {
         $this->sslVerify = $verify;
     }
@@ -79,18 +89,14 @@ class TokenRequest
         return $this->identity;
     }
 
-    public function setUserIp(string $ip)
+    public function setRemoteAddress(RemoteAddress $remoteAddress)
     {
-        $this->userIp = $ip;
+        $this->remoteAddress = $remoteAddress;
     }
 
     public function getUserIp() : string
     {
-        if ($this->userIp) {
-            return $this->userIp;
-        }
-        $remoteAddress = new RemoteAddress();
-        return $remoteAddress->getIpAddress();
+        return $this->remoteAddress->getIpAddress();
     }
 
     public function setUserAgent(string $agent)
@@ -100,40 +106,39 @@ class TokenRequest
 
     public function getUserAgent() : string
     {
-        if ($this->userAgent) {
-            return $this->userAgent;
+        if (! $this->userAgent) {
+            $this->userAgent = trim($_SERVER['HTTP_USER_AGENT']);   
         }
-        return $_SERVER['HTTP_USER_AGENT'];
+        return substr($this->userAgent,0,255); // trim after 255 character
     }
 
-
-    public function addGrant(GrantInterface $object)
+    public function addGrant(GrantInterface $grant)
     {
-
+        $this->grants[] = $grant;
     }
 
     public function send()
     {
+        $payload = $this->createBody();
+        $request = new Request;
+        $result = $request->post($payload);
 
+        return new TokenResponse($result);
     }
-
-    private function createGrants()
+    
+    private function createBody() : array
     {
-
-    }
-
-    private function createJsonBody()
-    {
-        $this->body = [
-            'ACCOUNT_ID' => $this->getAccountId(),
-            'API_KEY' => $this->getApiKey(),
-            'API_KEY_SECRET' => $this->getApiKeySecret(),
-            'username' => $this->getIdentity(),
-            'ip' => $this->getUserIp(),
-            'agent' => $this->getUserAgent(),
+        $body = [
+            Self::ACCOUNT_ID => $this->getAccountId(),
+            Self::API_KEY => $this->getApiKey(),
+            Self::API_KEY_SECRET => $this->getApiKeySecret(),
+            Self::USER_NAME => $this->getIdentity(),
+            Self::USER_IP => $this->getUserIp(),
+            Self::USER_AGENT => $this->getUserAgent(),
         ];
-        $this->body['GRANTS']['video']['roomId'] = 1234567891011125;
+        foreach($this->grants as $grant) {
+            $body[Self::GRANTS][$grant->getGrantKey()] = $grant->getPayload();
+        }
+        return $body;
     }
-
-
 }

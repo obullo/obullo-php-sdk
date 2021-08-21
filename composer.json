@@ -27,5 +27,13 @@
         "psr-4": {
             "Obullo\\Tests\\": "tests/Obullo/"
         }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf"
     }
 }

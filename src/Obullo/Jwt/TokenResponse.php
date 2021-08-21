@@ -12,19 +12,22 @@ use Obullo\Jwt\Grants\GrantInterface;
  */
 class TokenResponse
 {
-    public function __construct(array $result)
+    const HOST = 'host';
+    const TOKEN = 'token';
+
+    public function __construct(array $response)
     {
-        $this->result = $result;
+        $this->response = $response;
     }
 
     public function getHostname()
     {
-        return (string)$this->result['host'];
+        return (string)$this->response[Self::HOST];
     }
 
     public function getJWT()
     {
-        return (string)$this->result['token'];
+        return (string)$this->response[Self::TOKEN];
     }
 
 }

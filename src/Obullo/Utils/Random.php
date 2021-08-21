@@ -17,7 +17,7 @@ use function ord;
 class Random
 {
     /**
-     * Generate secure random integer (12-16 characters)
+     * Generate secure random integer (12-19 characters)
      * 
      * start value = 100000000000
      * end value = 9223372036854775807

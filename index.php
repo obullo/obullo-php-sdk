@@ -16,13 +16,13 @@ define('API_KEY_SECRET', 'bIDT8hZ9U5nKf6mGTm5nBeVEg50J6jrtHWI3');
 
 $random = new Random;
 $roomId = $random->generateHash('my-unique-room-name');
-// $roomId = $random->generateInteger(); // use this method if you prefer room id as integer 
+// $roomId = $random->generateInteger(); // do this if you prefer to use room id as integer 
 
 $username = 'ersin_165';
 $videoGrant = new VideoGrant();
 $videoGrant->setRoomId($roomId);
 
-$remoteAddress = new RemoteAddress(); // get real ip of use
+$remoteAddress = new RemoteAddress(); // get real ip of user
 try {
     $tokenRequest = new TokenRequest(
         ACCOUNT_ID,
@@ -35,9 +35,12 @@ try {
     $tokenRequest->addGrant($videoGrant);
 
     $response = $tokenRequest->send();
-    $hostname = $response->getHostName();  // returns to most available server name
-    $accessToken = $response->getJWT();
+    $hostname = $response->getHostName(); // returns to most available server
+    $token = $response->getJWT();
+
+    echo 'host: '.$hostname.'<br>';
+    echo 'token: '.$token;
 
 } catch (Exception $e) {
-    echo 'Error:'.$e->getMessage();
+    echo 'Error: '.$e->getMessage();
 }

@@ -13,7 +13,7 @@ use GuzzleHttp\Client as GuzzleClient;
 class Request
 {    
     const URL = 'https://token.obullo.local:3000/v1/getAccessToken';
-    protected $verifyFile = true;
+    protected $verifyFile;
 
     protected static function getUrl()
     {

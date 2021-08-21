@@ -5,6 +5,7 @@ namespace Obullo\Jwt;
 use Obullo\Http\Request;
 use Obullo\Http\RemoteAddress;
 use Obullo\Jwt\Grants\GrantInterface;
+use Obullo\Exception\RestErrorException;
 
 /**
  * Copyright (C) 2022 Obullo
@@ -26,7 +27,7 @@ class TokenRequest
     protected $apiKey;
     protected $apiKeySecret;
     protected $identity;
-    protected $sslVerify = true;
+    protected $verifyFile;
     protected $remoteAddress;
     protected $userAgent;
     protected $grants = array();
@@ -44,9 +45,14 @@ class TokenRequest
         $this->setIdentity($identity);
     }
 
-    public function sslVerifyFile(string $verify)
+    public function sslVerifyFile(string $verifyFile)
     {
-        $this->sslVerify = $verify;
+        $this->verifyFile = $verifyFile;
+    }
+
+    public function getVerifyFile()
+    {
+        return $this->verifyFile;
     }
 
     public function setAccountId(string $accountId)
@@ -121,9 +127,12 @@ class TokenRequest
     {
         $payload = $this->createBody();
         $request = new Request;
-        $result = $request->post($payload);
-
-        return new TokenResponse($result);
+        $request->setVerifyFile($this->getVerifyFile());
+        $response = $request->post($payload);
+        if (! empty($response['error'])) {
+            throw new RestErrorException($response['error']);
+        }
+        return new TokenResponse($response);
     }
     
     private function createBody() : array

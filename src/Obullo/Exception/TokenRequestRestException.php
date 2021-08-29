@@ -4,4 +4,4 @@ namespace Obullo\Exception;
 
 use RuntimeException;
 
-class RestErrorException extends RuntimeException {}
+class TokenRequestRestException extends RuntimeException {}

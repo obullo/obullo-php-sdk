@@ -17,16 +17,16 @@ use function ord;
 class Random
 {
     /**
-     * Generate secure random integer (12-19 characters)
+     * Generate secure random integer (8-19 characters)
      * 
-     * start value = 100000000000
+     * start value = 10000000
      * end value = 9223372036854775807
      * 
      * @return int
      */
     public function generateInteger() : int
     {
-        $randomInteger = random_int(100000000000,PHP_INT_MAX);
+        $randomInteger = random_int(10000000, PHP_INT_MAX);
         return intval($randomInteger);
     }
 

@@ -3,9 +3,10 @@
 namespace Obullo\Jwt;
 
 use Obullo\Http\Request;
-use Obullo\Http\RemoteAddress;
+use Obullo\Utils\Random;
 use Obullo\Jwt\Grants\GrantInterface;
-use Obullo\Exception\RestErrorException;
+use Obullo\Exception\TokenRequestOriginException;
+use Obullo\Exception\TokenRequestRestException;
 
 /**
  * Copyright (C) 2022 Obullo
@@ -18,9 +19,9 @@ class TokenRequest
     const ACCOUNT_ID = 'accountId';
     const API_KEY = 'apiKey';
     const API_KEY_SECRET = 'apiKeySecret';
+    const USER_ID = 'userId';
     const USER_NAME = 'username';
-    const USER_IP = 'userIp';
-    const USER_AGENT = 'userAgent';
+    const ORIGIN = 'origin';
     const GRANTS = 'grants';
 
     protected $accountId;
@@ -28,8 +29,7 @@ class TokenRequest
     protected $apiKeySecret;
     protected $identity;
     protected $verifyFile;
-    protected $remoteAddress;
-    protected $userAgent;
+    protected $origin;
     protected $grants = array();
 
     public function __construct(
@@ -43,9 +43,13 @@ class TokenRequest
         $this->setApiKey($apiKey);
         $this->setApiKeySecret($apiKeySecret);
         $this->setIdentity($identity);
+
+        // generate hashed user id from username
+        //
+        $this->hashUserId($identity);
     }
 
-    public function sslVerifyFile(string $verifyFile)
+    public function setVerifyFile(string $verifyFile)
     {
         $this->verifyFile = $verifyFile;
     }
@@ -53,6 +57,23 @@ class TokenRequest
     public function getVerifyFile()
     {
         return $this->verifyFile;
+    }
+
+    public function setOrigin(string $domain)
+    {
+        $scheme = parse_url($domain, PHP_URL_SCHEME);
+        if ($scheme != 'https') {
+            throw new TokenRequestOriginException("Origin url protocol must be secure");
+        }
+        if (false == filter_var($domain, FILTER_VALIDATE_URL)) {
+            throw new TokenRequestOriginException("Origin url is invalid");
+        }
+        $this->origin = $domain;
+    }
+
+    public function getOrigin() : string
+    {
+        return $this->origin;
     }
 
     public function setAccountId(string $accountId)
@@ -95,32 +116,21 @@ class TokenRequest
         return $this->identity;
     }
 
-    public function setRemoteAddress(RemoteAddress $remoteAddress)
+    public function getUserId() : int
     {
-        $this->remoteAddress = $remoteAddress;
-    }
-
-    public function getUserIp() : string
-    {
-        return $this->remoteAddress->getIpAddress();
-    }
-
-    public function setUserAgent(string $agent)
-    {
-        $this->userAgent = $agent;
-    }
-
-    public function getUserAgent() : string
-    {
-        if (! $this->userAgent) {
-            $this->userAgent = trim($_SERVER['HTTP_USER_AGENT']);   
-        }
-        return substr($this->userAgent,0,255); // trim after 255 character
+        return $this->userId;
     }
 
     public function addGrant(GrantInterface $grant)
     {
         $this->grants[] = $grant;
+    }
+
+    protected function hashUserId() : int
+    {
+        $random = new Random;
+        $this->userId = $random->generateHash($this->getIdentity());
+        return $this->userId;
     }
 
     public function send()
@@ -130,7 +140,7 @@ class TokenRequest
         $request->setVerifyFile($this->getVerifyFile());
         $response = $request->post($payload);
         if (! empty($response['error'])) {
-            throw new RestErrorException($response['error']);
+            throw new TokenRequestRestException($response['error']);
         }
         return new TokenResponse($response);
     }
@@ -142,10 +152,10 @@ class TokenRequest
             Self::API_KEY => $this->getApiKey(),
             Self::API_KEY_SECRET => $this->getApiKeySecret(),
             Self::USER_NAME => $this->getIdentity(),
-            Self::USER_IP => $this->getUserIp(),
-            Self::USER_AGENT => $this->getUserAgent(),
+            Self::USER_ID => $this->getUserId(),
+            Self::ORIGIN => $this->getOrigin(),
         ];
-        foreach($this->grants as $grant) {
+        foreach ($this->grants as $grant) {
             $body[Self::GRANTS][$grant->getGrantKey()] = $grant->getPayload();
         }
         return $body;

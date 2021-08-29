@@ -1,8 +1,14 @@
 {
     "name": "obullo/sdk",
     "type": "library",
-    "description": "Php SDK for Obullo API",
-    "keywords": ["obullo", "video", "webrtc", "api"],
+    "description": "Php SDK for Obullo REST API",
+    "keywords": [
+        "obullo",
+        "php-sdk",
+        "video",
+        "webrtc",
+        "api"
+    ],
     "homepage": "http://github.com/obullo/obullo-php-sdk",
     "license": "MIT",
     "authors": [

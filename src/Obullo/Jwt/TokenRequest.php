@@ -4,6 +4,7 @@ namespace Obullo\Jwt;
 
 use Obullo\Http\Request;
 use Obullo\Utils\Random;
+use Obullo\Utils\RemoteAddress;
 use Obullo\Jwt\Grants\GrantInterface;
 use Obullo\Exception\TokenRequestOriginException;
 use Obullo\Exception\TokenRequestRestException;
@@ -20,6 +21,7 @@ class TokenRequest
     const API_KEY = 'apiKey';
     const API_KEY_SECRET = 'apiKeySecret';
     const USER_ID = 'userId';
+    const USER_IP = 'userIp';
     const USER_NAME = 'username';
     const ORIGIN = 'origin';
     const GRANTS = 'grants';
@@ -57,6 +59,16 @@ class TokenRequest
     public function getVerifyFile()
     {
         return $this->verifyFile;
+    }
+
+    public function setRemoteAddress(RemoteAddress $remoteAddress)
+    {
+        $this->remoteAddress = $remoteAddress;
+    }
+
+    public function getUserIp() : string
+    {
+        return $this->remoteAddress->getIpAddress();
     }
 
     public function setOrigin(string $domain)
@@ -153,6 +165,7 @@ class TokenRequest
             Self::API_KEY_SECRET => $this->getApiKeySecret(),
             Self::USER_NAME => $this->getIdentity(),
             Self::USER_ID => $this->getUserId(),
+            Self::USER_IP => $this->getUserIp(),
             Self::ORIGIN => $this->getOrigin(),
         ];
         foreach ($this->grants as $grant) {

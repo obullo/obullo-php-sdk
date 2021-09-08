@@ -18,6 +18,7 @@ class TokenResponse
     {
         $this->response = $response;
     }
+    
     public function getJWT()
     {
         return (string)$this->response[Self::TOKEN];

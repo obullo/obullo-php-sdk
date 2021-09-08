@@ -36,7 +36,7 @@ class Random
      * @param   $str
      * @return string
      */
-    public function generateHash($str) : int
+    public function generateHash(string $str) : int
     {
         $value = Self::crc64($str, '%u');
         return intval($value);
@@ -54,7 +54,7 @@ class Random
     *  crc64('php', '%d'); // -5772233581471534704 signed int
     *  crc64('php', '%u'); // 12674510492238016912 unsigned int
     */
-    protected static function crc64($string, $format = '%x')
+    protected static function crc64(string $string, $format = '%x')
     {
         static $crc64tab;
         if ($crc64tab === null) {

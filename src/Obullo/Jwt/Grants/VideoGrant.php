@@ -17,7 +17,7 @@ class VideoGrant implements GrantInterface
 
     public function getRoomId() : int
     {
-        return $this->roomId;
+        return (int)$this->roomId;
     }
 
     public function getGrantKey() : string

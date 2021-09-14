@@ -68,7 +68,6 @@ class Request
 
     }
 
-
     protected function curlPost(array $payload)
     {
         $result = array();
@@ -103,7 +102,6 @@ class Request
         curl_close($ch);
         return $result; 
     }
-
 
     protected function curlGet()
     {

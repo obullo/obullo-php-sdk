@@ -125,7 +125,7 @@ class TokenRequest
     {
         $this->grants[] = $grant;
     }
-
+    
     protected function hashUserId() : int
     {
         $random = new Random;

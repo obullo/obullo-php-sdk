@@ -129,7 +129,7 @@ class TokenRequest
     protected function hashUserId() : int
     {
         $random = new Random;
-        $this->userId = $random->generateHash($this->getIdentity());
+        $this->userId = $random->generateInteger();
         return $this->userId;
     }
 
@@ -148,12 +148,12 @@ class TokenRequest
     private function createBody() : array
     {
         $body = [
-            Self::ACCOUNT_ID => $this->getAccountId(),
-            Self::API_KEY => $this->getApiKey(),
-            Self::API_KEY_SECRET => $this->getApiKeySecret(),
-            Self::USER_NAME => $this->getIdentity(),
-            Self::USER_ID => $this->getUserId(),
-            Self::ORIGIN => $this->getOrigin(),
+            Self::ACCOUNT_ID => (string)$this->getAccountId(),
+            Self::API_KEY => (string)$this->getApiKey(),
+            Self::API_KEY_SECRET => (string)$this->getApiKeySecret(),
+            Self::USER_NAME => (string)$this->getIdentity(),
+            Self::USER_ID => (int)$this->getUserId(),
+            Self::ORIGIN => (string)$this->getOrigin(),
         ];
         foreach ($this->grants as $grant) {
             $body[Self::GRANTS][$grant->getGrantKey()] = $grant->getPayload();

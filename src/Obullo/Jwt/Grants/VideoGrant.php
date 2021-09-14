@@ -20,12 +20,12 @@ class VideoGrant implements GrantInterface
         return $this->roomId;
     }
 
-    public function getGrantKey()
+    public function getGrantKey() : string
     {
         return 'video';
     }
 
-    public function getPayload()
+    public function getPayload() : array
     {
         return ['roomId' => $this->getRoomId()];
     }

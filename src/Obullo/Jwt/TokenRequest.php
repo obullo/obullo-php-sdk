@@ -16,7 +16,6 @@ use Obullo\Exception\TokenRequestRestException;
  */
 class TokenRequest
 {
-    const ACCOUNT_ID = 'accountId';
     const API_KEY = 'apiKey';
     const API_KEY_SECRET = 'apiKeySecret';
     const USER_ID = 'userId';
@@ -24,7 +23,6 @@ class TokenRequest
     const ORIGIN = 'origin';
     const GRANTS = 'grants';
 
-    protected $accountId;
     protected $apiKey;
     protected $apiKeySecret;
     protected $identity;
@@ -33,20 +31,15 @@ class TokenRequest
     protected $grants = array();
 
     public function __construct(
-        string $accountId,
         string $apiKey,
         string $apiKeySecret,
         string $identity
     )
     {
-        $this->setAccountId($accountId);
         $this->setApiKey($apiKey);
         $this->setApiKeySecret($apiKeySecret);
         $this->setIdentity($identity);
-
-        // generate hashed user id from username
-        //
-        $this->hashUserId($identity);
+        $this->generateUserId();
     }
 
     public function setVerifyFile(string $verifyFile)
@@ -74,16 +67,6 @@ class TokenRequest
     public function getOrigin() : string
     {
         return $this->origin;
-    }
-
-    public function setAccountId(string $accountId)
-    {
-        $this->accountId = $accountId;
-    }
-
-    public function getAccountId() : string
-    {
-        return $this->accountId;
     }
 
     public function setApiKey(string $apiKey)
@@ -126,7 +109,7 @@ class TokenRequest
         $this->grants[] = $grant;
     }
     
-    protected function hashUserId() : int
+    protected function generateUserId() : int
     {
         $random = new Random;
         $this->userId = $random->generateInteger();
@@ -148,7 +131,6 @@ class TokenRequest
     private function createBody() : array
     {
         $body = [
-            Self::ACCOUNT_ID => (string)$this->getAccountId(),
             Self::API_KEY => (string)$this->getApiKey(),
             Self::API_KEY_SECRET => (string)$this->getApiKeySecret(),
             Self::USER_NAME => (string)$this->getIdentity(),
